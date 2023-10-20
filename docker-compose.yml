@@ -1,0 +1,26 @@
+version: "3.1"
+
+services:
+  frontend:
+    build:
+      dockerfile: frontend.dockerfile
+    ports:
+      - 5173:5173
+    depends_on:
+      - backend
+  backend:
+    build:
+      dockerfile: backend.dockerfile
+    ports:
+      - 5005:5000
+    depends_on:
+      - database
+  database:
+    image: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=wec
+      - MONGO_INITDB_ROOT_PASSWORD=wec
+    ports:
+      - "27017:27017"
+
