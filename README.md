@@ -7,7 +7,7 @@
 - [K8s Deployment Object](#k8s-deployment-object)
 - [Github Actions Workflow](#github-actions-workflow)
 ## Building the Docker Image
-1. Created dockerfile for the frontend.
+1. Creating dockerfile for the frontend.
 ```bash
 FROM node:21-alpine3.17
 WORKDIR /app
@@ -18,7 +18,17 @@ RUN npm install && \
 WORKDIR /app/frontend
 CMD ["npm","run","dev"]
 ```
-2. Created dockerfile for the backend.
+- Using the Node.js 21 image with Alpine Linux 3.17 as the base image.
+- Setting the working directory inside the container to `/app`.
+- Copying the local files into the `/app` directory in the container.
+- Dependency Installation:
+  - Running `npm install` in the root directory (`/app`) to install backend dependencies as frontend dependencies need backend dependencies.
+  - Using `cd frontend` to get into frontend directory.
+  - Running `npm install` again to install frontend dependencies.
+- Changing the working directory to `/app/frontend` as CMD runs in WORKDIR.
+- Specifying the default entry point to run when the container starts. It executes the `npm run dev` command, to start frontend.
+
+2. Creating dockerfile for the backend.
 ```bash
 FROM node:21-alpine3.17
 WORKDIR /app
@@ -28,7 +38,15 @@ RUN npm install && \
     npm install
 CMD ["npm","start"]
 ```
-3. Created docker compose file to run the app (frontend+backend) & database on the same network.
+- Using the Node.js 21 image with Alpine Linux 3.17 as the base image.
+- Setting the working directory inside the container to `/app`.
+- Copying the local files into the `/app` directory in the container.
+- Dependency Installation: 
+  - Installing backend dependencies by running `npm install`.
+  - Using `cd frontend` to navigate to the frontend directory before installing frontend dependencies by `npm install`.
+- Specifying the default entry point to run when the container starts as `npm start`, to start the backend.
+
+3. Creating docker compose file to run the app (frontend+backend) & database on the same network.
 ```bash
 version: "3.1"
 
@@ -56,23 +74,50 @@ services:
     ports:
       - "27017:27017"
 ```
+Using Docker Compose configuration in version 3.1, which defines a multi-container application with frontend, backend, and a MongoDB database:
+
+- Services: Defines the different services or containers that make up the application.
+
+  - Frontend:
+    - Uses previously created Dockerfile for frontend defined in `frontend.dockerfile`.
+    - Maps port 5173 on the host to port 5173 in the container.
+    - Depends on the "backend" service.
+
+  - Backend:
+    - Uses previously created Dockerfile for backend defined in `backend.dockerfile`.
+    - Maps port 5000 on the host to port 5000 in the container.
+    - Depends on the "database" service.
+
+  - Database (MongoDB):
+    - Uses the official MongoDB image from Docker Hub.
+    - Sets the `MONGO_INITDB_ROOT_USERNAME` and `MONGO_INITDB_ROOT_PASSWORD` environment variables for initial MongoDB user setup.
+    - Maps port 27017 on the host to port 27017 in the container.
+    - The "restart: always" ensures that the MongoDB container restarts automatically if it stops.
+
+This Docker Compose file orchestrates the setup of three interconnected containers: a frontend, a backend, and a MongoDB database, allowing them to work together as a multi-service application.
+
 4. Creating .env file
 ```bash
 MONGO_URI="mongodb://wec:wec@database:27017/admin"
 PORT = 5000
 JWT_SECRET="str"
 ```
-5. Running ```docker compose up --build``` to build the images and run the containers
-    the conatiners are running but can't access the webpage
-   
+5. Running ```docker compose up --build``` to build the images and run the containers.
+
+    the containers are running but can't access the webpage
+
+    ![cont](./captures/cont.png?raw=true "cont")
+
     ![webpage](./captures/webpage_error.png?raw=true "webpage")
    
     when i checked the logs, the frontend wasn't exposed to the network.
    
     ![frontend](./captures/frontend_error.png?raw=true "frontend")
    
-    i found the solution on this [page](https://bobbyhadz.com/blog/expose-local-vite-app-to-network) and updated the frontend package.json file 
+    i found the solution on this [page](https://bobbyhadz.com/blog/expose-local-vite-app-to-network) and updated the frontend               package.json file
 
+    changed ` "dev": "vite" ` to ` "dev": "vite --host" ` under scripts
+ 
     ![json](./captures/fixed_json.png?raw=true "json")
 
     now the frontend was exposed to the network
@@ -257,12 +302,16 @@ Everything is running without errors.
 
 ![kube](./captures/kube.png?raw=true "kube")
 
+frontend is exposed on port 32219
+
 ![front](./captures/kube_front.png?raw=true "front")
+
+backend is exposed on port 31242
 
 ![back](./captures/kube_back.png?raw=true "back")
 
 ## GitHub Actions Workflow
-Created GitHub Actions workflow file for continuous integration and deployment
+Created GitHub Actions workflow file for build and push
 ```bash
 name: Docker Image CI
 
@@ -302,13 +351,13 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}    
 
 ```
-This workflow automates the building and pushing of Docker images for a project's frontend and backend components:
+This workflow automates the building and pushing of Docker images for frontend and backend components:
 
 1. **Triggers**: The workflow is triggered on two events:
    - `push`: It runs when code is pushed to the "main" branch.
    - `pull_request`: It runs when a pull request is opened or updated for the "main" branch.
 
-2. **Jobs**: The workflow defines a single job named "build" that runs on Ubuntu-latest which has docker pre-instaled.
+2. **Jobs**: The workflow defines a single job named "build and push" that runs on Ubuntu-latest which has docker pre-instaled.
 
 3. **Steps**:
 
