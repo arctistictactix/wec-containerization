@@ -302,11 +302,11 @@ Everything is running without errors.
 
 ![kube](./captures/kube.png?raw=true "kube")
 
-frontend is exposed on port 32219
+backend is exposed on port 32219
 
 ![front](./captures/kube_front.png?raw=true "front")
 
-backend is exposed on port 31242
+frontend is exposed on port 31242
 
 ![back](./captures/kube_back.png?raw=true "back")
 
