@@ -71,13 +71,13 @@ JWT_SECRET="str"
    
     ![frontend](./captures/frontend_error.png?raw=true "frontend")
    
-    i found the solution on this [page](https://bobbyhadz.com/blog/expose-local-vite-app-to-network)
+    i found the solution on this [page](https://bobbyhadz.com/blog/expose-local-vite-app-to-network) and updated the frontend package.json file 
 
     ![json](./captures/fixed_json.png?raw=true "json")
 
     now the frontend was exposed to the network
 
-    ![front](./captures/fixed_frontend.png?raw=true "front")
+    ![front](./captures/frontend_fix.png?raw=true "front")
 
      now the webpage was working
      ![web](./captures/webpage.png?raw=true "web")
@@ -215,7 +215,7 @@ spec:
 
 ```
 ## GitHub Actions Workflow
-created github actions workflow file for continous integration and deployment
+Created GitHub Actions workflow file for continuous integration and deployment
 ```bash
 name: Docker Image CI
 
@@ -255,5 +255,20 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}    
 
 ```
+This workflow automates the building and pushing of Docker images for a project's frontend and backend components:
+
+1. **Triggers**: The workflow is triggered on two events:
+   - `push`: It runs when code is pushed to the "main" branch.
+   - `pull_request`: It runs when a pull request is opened or updated for the "main" branch.
+
+2. **Jobs**: The workflow defines a single job named "build" that runs on Ubuntu-latest which has docker pre-instaled.
+
+3. **Steps**:
+
+   a. `actions/checkout@v3`: This step checks out the code from the repository.
+
+   b. `mr-smithers-excellent/docker-build-push@v6`: This step uses a custom action to build and push Docker images. It is used twice, once for the frontend and once for the backend.
+
+This workflow is designed to automatically build and push Docker images for the "main" branch of the repository when changes are pushed or when pull requests are made. It uses custom Docker image building and pushing actions, and it relies on Docker credentials stored as secrets to access the Docker registry.
 ![actions](./captures/actions.png?raw=true "actions")
 
