@@ -214,6 +214,53 @@ spec:
           protocol: TCP
 
 ```
+This YAML configuration defines Kubernetes resources, including Services and Deployments for a database, backend, and frontend components.
+
+1. **Database Service**:
+   - A Service named "database" exposing port 27017 for MongoDB.
+   - It selects Pods with the label `app: database`.
+
+2. **Frontend Network Service**:
+   - A Service named "frontend-network" exposing port 5173 for the frontend component.
+   - It selects Pods with the label `app: frontend`.
+   - This service is of type NodePort, allowing external access.
+
+3. **Backend Network Service**:
+   - A Service named "backend-network" exposing port 5000 for the backend component.
+   - It selects Pods with the label `app: backend`.
+   - This service is also of type NodePort.
+
+4. **Database Deployment**:
+   - A Deployment named "database" for MongoDB.
+   - It uses a MongoDB image.
+   - Defines environment variables for the MongoDB root user credentials.
+
+5. **Backend Deployment**:
+   - A Deployment named "backend" for the backend component.
+   - It uses the Docker image from my repo in DockerHub.
+   - Exposes port 5000, both in the container and on the host.
+
+6. **Frontend Deployment**:
+   - A Deployment named "frontend" for the frontend component.
+   - It also uses my DockerHub image.
+   - Exposes port 5173, both in the container and on the host.
+
+**Container Port:** The container port is the port number on which a process or application inside a container is listening.
+
+**HostPort:** The host port is a port number on the underlying host machine (the node) that is associated with a specific container port
+
+**NodePort:** Node port is a type of service in Kubernetes that exposes a specific port on all nodes in the cluster. NodePort services are typically used to expose a service to the external world when you want to access it from outside the cluster. Any traffic that arrives at a node's IP address on the NodePort will be forwarded to the associated service.
+
+These YAML configurations describe how the different components of the application are deployed and how they can be accessed within a Kubernetes cluster. The Services expose specific ports for each component, and the Deployments define how the application containers should be deployed and managed. The type of Services "frontend-network" and "backend-network" as NodePort suggests that these services can be accessed externally via a node's IP address and a high port number(>30,000).
+
+Everything is running without errors.
+
+![kube](./captures/kube.png?raw=true "kube")
+
+![front](./captures/kube_front.png?raw=true "front")
+
+![back](./captures/kube_back.png?raw=true "back")
+
 ## GitHub Actions Workflow
 Created GitHub Actions workflow file for continuous integration and deployment
 ```bash
